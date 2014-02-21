@@ -1,0 +1,48 @@
+{
+  "name": "enrollment-advisors-api",
+  "description": "Enrollment Advisors Api",
+  "version": "0.0.1",
+  "author": "Infomedia",
+  "dependencies": {
+    "express": "~3.4.4",
+    "lodash": "~2.3.0",
+    "q": "~0.9.7",
+    "connect-redis": "1.4.6",
+    "node-uuid": "1.4.1",
+    "async": "~0.2.9",
+    "nconf": "~0.6.9"
+  },
+  "devDependencies": {
+    "mocha": "~1.14.0",
+    "chai": "~1.8.1",
+    "supertest": "~0.8.1",
+    "istanbul": "~0.1.44",
+    "jshint": "~2.3.0",
+    "nock": "~0.23.0",
+    "sinon": "~1.7.3",
+    "sinon-chai": "~2.4.0",
+    "proxyquire": "~0.5.1",
+    "yo": "~1.0.4",
+    "chai-as-promised": "~4.1.0",
+    "mocha-teamcity-reporter": "0.0.2",
+    "jshint-teamcity-reporter": "0.0.1"
+  },
+  "main": "app.js",
+  "engines": {
+    "node": ">=0.10.21"
+  },
+  "scripts": {
+    "start": "node app",
+    "test": "node node_modules/mocha/bin/_mocha",
+    "postinstall": "npm link generators/generator-resource",
+    "watch": "node node_modules/mocha/bin/_mocha --watch",
+    "cover": "node node_modules/istanbul/lib/cli.js cover -x **/swagger/** -x swaggerConfig.js -x app.js node_modules/mocha/bin/_mocha",
+    "jshint": "node node_modules/jshint/bin/jshint -c config/.jshintrc app test app.js",
+    "ci": "scripts/ci.sh",
+    "teamcity-test": "node node_modules/mocha/bin/_mocha --timeout 5000 --reporter mocha-teamcity-reporter",
+    "teamcity-cover": "node node_modules/istanbul/lib/cli.js cover -x **/swagger/** -x swaggerConfig.js -x app.js node_modules/mocha/bin/_mocha",
+    "teamcity-jshint": "node node_modules/jshint/bin/jshint -c config/.jshintrc app test app.js --reporter=./node_modules/jshint-teamcity-reporter",
+    "pack": "node .nuget/buildNugetPackage.js",
+    "update-version": "node scripts/updateVersionWithBuildNumber.js"
+  }
+}
