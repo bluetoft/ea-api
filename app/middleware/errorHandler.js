@@ -3,7 +3,6 @@
 var uuid = require('node-uuid');
 
 module.exports = function (err, req, res, next) {
-  console.log(err);
   //'next' unused but needed for express.
   /* jshint unused: false*/
   if(!err) return;

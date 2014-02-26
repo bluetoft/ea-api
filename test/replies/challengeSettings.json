@@ -1,0 +1,8 @@
+{
+  "RequiredChallengeFields": [
+    "sample string 1",
+    "sample string 2",
+    "sample string 3"
+  ],
+  "Instructions" : "sample string 1"
+}

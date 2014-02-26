@@ -5,7 +5,6 @@ var express = require('express');
 var swaggerConfig = require('./app/swaggerConfig');
 var errorHandler = require('./app/middleware/errorHandler');
 var responseFormatter = require('./app/middleware/responseFormatter');
-console.log(responseFormatter.toString());
 var app = setupExpress();
 
 if (app.settings.env !== 'test') {

@@ -15,7 +15,8 @@ var configDir = process.cwd() + '/config';
 var files = fs.readdirSync(configDir);
 var filter = function (pattern) {
     return files.filter(function (f) {
-        return f.match(pattern);
+        var match = f.match(pattern);
+        return match;
     });
 };
 
@@ -23,6 +24,7 @@ var configLocalJs = filter('.*\.config\.local\.js$');
 var configJs = filter('.*\.config\.js$');
 
 configLocalJs.forEach(function (f) {
+    console.log('found valid config file',f)
     nconf.overrides(require(configDir + '/' + f));
 });
 configJs.forEach(function (f) {
@@ -31,6 +33,5 @@ configJs.forEach(function (f) {
 
 // finally, use machine environment variables
 nconf.env();
-
 // export nconf as config
 module.exports = nconf;

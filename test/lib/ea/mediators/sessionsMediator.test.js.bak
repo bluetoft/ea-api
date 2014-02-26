@@ -1,0 +1,204 @@
+'use strict';
+
+var req = { val: 'req'};
+var translatedResponse = {val: 'translated response', body:'empower body'};
+var dataFromDispatcher = {val: 'data from dispatcher'};
+var mappedResults = {val: 'mapped results'};
+
+var mockTranslator;
+var mockDispatcher;
+var mockMapper;
+
+var sessionsMediator;
+
+describe('sessions Mediator', function() {
+
+  beforeEach(function() {
+    mockTranslator = sinon.stub({
+      translatePostRequest: function(){},
+      translatePutRequest: function() {},
+      translateDeleteRequest: function() {}
+    });
+    mockTranslator.translatePostRequest.returns(translatedResponse);
+    mockTranslator.translatePutRequest.returns(translatedResponse);
+    mockTranslator.translateDeleteRequest.returns(translatedResponse);
+
+    mockDispatcher = sinon.stub({ dispatch: function(){}});
+    mockDispatcher.dispatch.returns(
+      mockPromises.buildImmediatelyResolvedPromise(dataFromDispatcher)
+    );
+    
+    mockMapper = sinon.stub();
+    mockMapper.returns(mappedResults);
+
+    sessionsMediator = proxyquire('../../app/lib/ea/mediators/sessionsMediator',
+      {
+        '../translators/sessionsTranslator': mockTranslator,
+        '../../httpDispatcher': mockDispatcher,
+        '../mappers/sessionsMapper': mockMapper
+      });
+  });
+
+  describe('postSessions', function() {
+
+    it('calls the translator to get the dispatcher options', function() {
+      sessionsMediator.postSessions(req);
+      expect(mockTranslator.translatePostRequest).to.have.been.calledWith(req);
+    });
+
+    it('calls the dispatcher with the translated options and post data from body', function() {
+      sessionsMediator.postSessions(req);
+      expect(mockDispatcher.dispatch).to.have.been.calledWith(translatedResponse, translatedResponse.body);
+    });
+
+    it('calls the dispatcher with the translated options when no body is included', function() {
+      var res  = {val: 'translated response'};
+      mockTranslator.translatePostRequest.returns(res);
+      sessionsMediator.postSessions(req);
+      expect(mockDispatcher.dispatch).to.have.been.calledWith(res);
+    });
+
+    it('receives a promise from the dispatcher', function(done) {
+      var response = sessionsMediator.postSessions(req);
+      expect(response).to.eventually.be.fulfilled
+        .and.notify(done);
+    });
+
+    it('sends the promise from the dispatcher to the mapper when fulfilled', function(done) {
+      var response = sessionsMediator.postSessions(req);
+      response.done(function() {
+        expect(mockMapper).to.have.been.calledWith(dataFromDispatcher);
+        done();
+      });
+    });
+
+    it('returns a promise that is eventually fulfilled to be the result of the mapper', function(done) {
+      var response = sessionsMediator.postSessions(req);
+      expect(response).to.eventually.deep.equal(mappedResults)
+        .and.notify(done);
+    });
+
+    describe('when the returned promise is rejected', function() {
+
+      beforeEach(function() {
+        mockDispatcher.dispatch.returns(
+        mockPromises.buildImmediatelyRejectedPromise(mappedResults)
+        );
+      });
+
+      it('throws an error because the rejected promise isnt handled', function(done) {
+        expect(sessionsMediator.postSessions(req)).to.eventually.be.rejectedWith(mappedResults)
+          .and.notify(done);
+      });
+
+    });
+
+  });
+
+  describe('putSession', function() {
+
+    it('calls the translator to get the dispatcher options', function() {
+      sessionsMediator.putSession(req);
+      expect(mockTranslator.translatePutRequest).to.have.been.calledWith(req);
+    });
+
+    it('calls the dispatcher with the translated options and post data from body', function() {
+      sessionsMediator.putSession(req);
+      expect(mockDispatcher.dispatch).to.have.been.calledWith(translatedResponse, translatedResponse.body);
+    });
+
+    it('calls the dispatcher with the translated options when no body is included', function() {
+      var res  = {val: 'translated response'};
+      mockTranslator.translatePutRequest.returns(res);
+      sessionsMediator.putSession(req);
+      expect(mockDispatcher.dispatch).to.have.been.calledWith(res);
+    });
+
+    it('receives a promise from the dispatcher', function(done) {
+      var response = sessionsMediator.putSession(req);
+      expect(response).to.eventually.be.fulfilled
+        .and.notify(done);
+    });
+
+    it('sends the promise from the dispatcher to the mapper when fulfilled', function(done) {
+      var response = sessionsMediator.putSession(req);
+      response.done(function() {
+        expect(mockMapper).to.have.been.calledWith(dataFromDispatcher);
+        done();
+      });
+    });
+
+    it('returns a promise that is eventually fulfilled to be the result of the mapper', function(done) {
+      var response = sessionsMediator.putSession(req);
+      expect(response).to.eventually.deep.equal(mappedResults)
+        .and.notify(done);
+    });
+
+    describe('when the returned promise is rejected', function() {
+
+      beforeEach(function() {
+        mockDispatcher.dispatch.returns(
+          mockPromises.buildImmediatelyRejectedPromise(mappedResults)
+        );
+      });
+
+      it('throws an error because the rejected promise isnt handled', function(done) {
+        expect(sessionsMediator.putSession(req)).to.eventually.be.rejectedWith(mappedResults)
+          .and.notify(done);
+      });
+
+    });
+
+  });
+
+  describe('deleteSessions', function() {
+
+    it('calls the translator to get the dispatcher options', function() {
+      sessionsMediator.deleteSessions(req);
+      expect(mockTranslator.translateDeleteRequest).to.have.been.calledWith(req);
+    });
+
+    it('calls the dispatcher with the translated options', function() {
+      sessionsMediator.deleteSessions(req);
+      expect(mockDispatcher.dispatch).to.have.been.calledWith(translatedResponse);
+    });
+
+    it('receives a promise from the dispatcher', function(done) {
+      var response = sessionsMediator.deleteSessions(req);
+      expect(response).to.eventually.be.fulfilled
+        .and.notify(done);
+    });
+
+    it('sends the promise from the dispatcher to the mapper when fulfilled', function(done) {
+      var response = sessionsMediator.deleteSessions(req);
+      response.done(function() {
+        expect(mockMapper).to.have.been.calledWith(dataFromDispatcher);
+        done();
+      });
+    });
+
+    it('returns a promise that is eventually fulfilled to be the result of the mapper', function(done) {
+      var response = sessionsMediator.deleteSessions(req);
+      expect(response).to.eventually.deep.equal(mappedResults)
+        .and.notify(done);
+    });
+
+    describe('when the returned promise is rejected', function() {
+
+      beforeEach(function() {
+        mockDispatcher.dispatch.returns(
+        mockPromises.buildImmediatelyRejectedPromise(mappedResults)
+        );
+      });
+
+      it('throws an error because the rejected promise isnt handled', function(done) {
+        expect(sessionsMediator.deleteSessions(req)).to.eventually.be.rejectedWith(mappedResults)
+          .and.notify(done);
+      });
+
+    });
+
+  });
+
+
+});

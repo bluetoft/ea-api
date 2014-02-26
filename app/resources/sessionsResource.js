@@ -1,6 +1,7 @@
 'use strict';
 
 var sw = require('../../swagger/common/node/swagger.js');
+var eaSessionsMediator = require('../lib/ea/mediators/sessionsMediator');
 var swe = sw.errors;
 
 exports.deleteSessions = {
@@ -35,9 +36,7 @@ exports.postSessions = {
     'nickname' : 'postSessions'
   },
   'action': function (req, res, next) {
-    next();
-    return;
-    return empowerSessionsMediator.postSessions(req)
+    return eaSessionsMediator.postSessions(req)
       .then(function(data) {
         res.results = data.results;
         res.status=201;
@@ -49,33 +48,5 @@ exports.postSessions = {
   }
 };
 
-exports.putSession = {
-  'spec': {
-    'description' : 'Answer a session login challenge.',
-    'path' : '/sessions/{sessionId}',
-    'notes' : 'Notes',
-    'summary' : 'Answer a session login challenge',
-    'method': 'PUT',
-    'params' : [
-      sw.pathParam('sessionId', 'SessionId', 'string'),
-      sw.headerParam('Authorization', 'Authorization header', 'string', true),
-      sw.bodyParam('challengeQuestions', 'Challenge questions that need to be validated', 'Question')
-    ],
-    'errorResponses' : [swe.invalid('sessionId'), swe.notFound('sessionId')],
-    'nickname' : 'putSession'
-  },
-  'action': function (req, res, next) {
-    next();
-    return;
-    return empowerSessionsMediator.putSession(req)
-      .then(function(data) {
-        res.results = data.results;
-        res.status=200;
-        next();
-      })
-      .fail(function(data) {
-        next(data);
-      });
-  }
-};
+
 

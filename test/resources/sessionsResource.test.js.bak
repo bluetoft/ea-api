@@ -1,0 +1,340 @@
+'use strict';
+
+var fs = require('fs');
+
+//Nock whatever services are configed.
+var config = require('../../config');
+var hostname = config.get('empower:hostname');
+var basepath = config.get('empower:basepath');
+var port = config.get('empower:port');
+var path = config.get('empower:sessions:postSessionsPath');
+
+var resource;
+var res;
+var next;
+
+describe('sessionsResource', function() {
+
+  describe('POST /sessions', function() {
+    var req = {};
+    var res = {};
+    var next;
+    var mockSessionsMediator;
+    var sessionsResource;
+    var expectedResponse = {results: {}};
+
+    beforeEach(function(){
+      res = {};
+      next = sinon.spy();
+      mockSessionsMediator = sinon.stub({postSessions: function() {}});
+      sessionsResource = proxyquire('../../app/resources/sessionsResource', {
+        '../lib/empower/mediators/sessionsMediator': mockSessionsMediator
+      });
+    });
+
+    describe('should call the mediator', function() {
+
+      beforeEach(function(){
+        mockSessionsMediator.postSessions.returns(
+          mockPromises.buildImmediatelyResolvedPromise(expectedResponse)
+          );
+      });
+
+      it('should call the mediator with the request object', function() {
+        sessionsResource.postSessions.action(req);
+        expect(mockSessionsMediator.postSessions).to.have.been.calledWith(req);
+      });
+
+      it('should call the mediator with correct parameters', function() {
+        sessionsResource.postSessions.action(req, res, next);
+        expect(mockSessionsMediator.postSessions).to.have.been.calledWith(req);
+      });
+
+    });
+
+    describe('when the mediator sucessfully completes', function() {
+
+      beforeEach(function(){
+        mockSessionsMediator.postSessions.returns(
+          mockPromises.buildImmediatelyResolvedPromise(expectedResponse)
+          );
+      });
+
+      it('should call next', function(done) {
+        var response = sessionsResource.postSessions.action(req, res, next);
+        response.done(function() {
+          expect(next.calledOnce).to.equal(true);
+          done();
+        });
+      });
+
+      it('should pass the data to the next function', function(done) {
+        var response = sessionsResource.postSessions.action(req, res, next);
+        response.fail(function() {
+          expect(res.results).to.equal(expectedResponse.results);
+        }).done(done);
+      });
+    });
+
+    describe('when the mediator fails', function() {
+
+      beforeEach(function(){
+        mockSessionsMediator.postSessions.returns(
+          mockPromises.buildImmediatelyRejectedPromise(expectedResponse)
+          );
+      });
+
+      it('should call the mediator with request object', function(done) {
+        var response = sessionsResource.postSessions.action(req);
+        response.fail(function() {
+          expect(mockSessionsMediator.postSessions).to.have.been.calledWith(req);
+        }).done(done);
+      });
+
+      it('should call the mediator with correct parameters', function(done) {
+
+        var response = sessionsResource.postSessions.action(req, res, next);
+        response.fail(function() {
+          expect(mockSessionsMediator.postSessions).to.have.been.calledWith(req);
+        }).done(done);
+      });
+
+      it('should pass the data to the next function', function(done) {
+
+        var response = sessionsResource.postSessions.action(req, res, next);
+        response.fail(function() {
+          expect(next).to.have.been.calledWith(expectedResponse);
+        }).done(done);
+      });
+
+    });
+  });
+});
+
+describe('sessionsResource with dependencies', function() {
+
+  resource = require('../../app/resources/sessionsResource');
+  var sessionsData = JSON.parse(fs.readFileSync('test/replies/sessions.json'));
+  
+
+  beforeEach(function() {
+    res = {};
+    next = sinon.spy();
+
+    nock('http://' + hostname + ':' + port)
+    .post(basepath + path)
+    .reply(200, sessionsData);
+  });
+
+  describe('PUT /sessions/{sessionId}', function() {
+
+    var putRequest = {
+      headers: {
+        authorization: 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+      },
+      ip: '123.456.789.012',
+      body: { challengeQuestions: [
+        {questionId: 1, question: 'q1', answer: 'a1'},
+        {questionId: 2, question: 'q2', answer: 'a2'}
+      ]}
+    };
+    var expectedResponse = {};
+    expectedResponse.Results = {
+      'twoFactorAuthToken': 'ABCDEFG',
+      'userId': 'sample string 2',
+      'userName': 'patient',
+      'sessionAuthenticated': true
+    };
+
+    it('resolves the returned promise when header and body are set correctly', function(done) {
+      var response = resource.putSession.action(putRequest, res, next);
+      expect(response).to.eventually.be.fulfilled
+      .and.notify(done);
+    });
+
+    it('sets res.results to the mapped data from the mediator', function(done) {
+      var response = resource.putSession.action(putRequest, res, next);
+      response.done(function() {
+        expect(res.results).to.deep.equal(expectedResponse.Results);
+        done();
+      });
+    });
+
+    it('sets res.status to 200 ', function(done) {
+      var response = resource.putSession.action(putRequest, res, next);
+      response.done(function() {
+        expect(res.status).to.deep.equal(200);
+        done();
+      });
+    });
+
+    it('calls next', function(done) {
+      var response = resource.putSession.action(putRequest, res, next);
+      response.done(function() {
+        expect(next.calledOnce).to.equal(true);
+        done();
+      });
+    });
+  });
+
+  describe('POST /sessions', function(){
+
+    describe('when authenticated response', function(){
+    
+      describe('call the post sessions without error', function() {
+        var expectedResponse = {};
+        expectedResponse.Results =
+          {
+            'userId': 'sample string 2',
+            'userName': 'patient',
+            'sessionAuthenticated': true,
+            'twoFactorAuthToken': 'ABCDEFG'
+          };
+
+        it('maps a sessions without correct parameters', function(done) {
+
+          var request = {
+            headers : {},
+            body : {},
+            ip : ''
+          };
+          var response = resource.postSessions.action(request, res, next);
+          expect(response).to.eventually.be.fulfilled.and.notify(done);
+        });
+
+        it('maps a sessions with correct parameters', function(done) {
+
+          var request = {
+            headers : {'authorization': 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='},
+            body : {'rememberMe' : 'false'},
+            ip : '127.0.0.1'
+          };
+          var response = resource.postSessions.action(request, res, next);
+          expect(response).to.eventually.be.fulfilled.and.notify(done);
+        });
+
+        it('sets res.results to the mapped data from the mediator with passing parameters', function(done) {
+          var request = {
+            headers : {'authorization': 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='},
+            body : {'rememberMe' : 'false'},
+            ip : '127.0.0.1'
+          };
+          var response = resource.postSessions.action(request, res, next);
+          
+          
+          response.done(function() {
+            expect(res.results).to.deep.equal(expectedResponse.Results);
+            done();
+          });
+        });
+
+        it('sets res.results to the mapped data from the mediator withot passing parameters', function(done) {
+          var request = {
+            headers : {},
+            body : {}
+          };
+          var response = resource.postSessions.action(request, res, next);
+          response.done(function() {
+            expect(res.results).to.deep.equal(expectedResponse.Results);
+            done();
+          });
+        });
+
+        it('sets res.status to 201', function(done) {
+          var request = {
+            headers : {},
+            body : {}
+          };
+          var response = resource.postSessions.action(request, res, next);
+          response.done(function() {
+            expect(res.status).to.deep.equal(201);
+            done();
+          });
+        });
+
+        it('calls next with correct parameters', function(done) {
+          var request = {
+            headers : {'authorization': 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='},
+            body : {'rememberMe' : 'false'},
+            ip : '127.0.0.1'
+          };
+          var response = resource.postSessions.action(request, res, next);
+          response.done(function() {
+            expect(next.calledOnce).to.equal(true);
+            done();
+          });
+        });
+
+        it('calls next without correct parameters', function(done) {
+          var request = {
+            headers : {},
+            body : {}
+          };
+          var response = resource.postSessions.action(request, res, next);
+          response.done(function() {
+            expect(next.calledOnce).to.equal(true);
+            done();
+          });
+        });
+      });
+
+      describe('call the post sessions with error', function() {
+        it('when called without request body throws an error', function () {
+          expect(function() { resource.postSession.action({}, res, next); }).to.throw(Error);
+        });
+      });
+    });
+  });
+});
+
+describe('when unauthenticated response', function(){
+
+  describe('call the post sessions with error', function() {
+
+    it('when called without request body throws an error', function () {
+      expect(function() { resource.postSession.action({}, res, next); }).to.throw(Error);
+    });
+
+  });
+
+  describe('call the post sessions without error', function() {
+
+    var sessionsUnauthenticate;
+
+    before(function () {
+      sessionsUnauthenticate = JSON.parse(fs.readFileSync('test/replies/sessionsUnauthenticate.json'));
+    });
+
+    beforeEach(function() {
+      nock('http://' + hostname + ':' + port)
+      .post(basepath + path)
+      .reply(200, sessionsUnauthenticate);
+    });
+
+    it('sets res.results to the mapped data from the mediator with passing parameters', function(done) {
+      var request = {
+        headers : {'authorization': 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='},
+        body : {'rememberMe' : 'false'},
+        ip : '127.0.0.1'
+      };
+      var response = resource.postSessions.action(request, res, next);
+      var expectedResponse = {};
+      expectedResponse.Results =
+      {
+        'challengeQuestions': {
+          'QuestionId' : 6,
+          'Question' : 'Sample Question',
+          'Active' : true
+        },
+        'twoFactorAuthToken': null,
+        'userId': '2',
+        'sessionAuthenticated': false
+      };
+
+      response.done(function() {
+        expect(res.results).to.deep.equal(expectedResponse.Results);
+        done();
+      });
+    });
+  });
+});

@@ -1,0 +1,46 @@
+{
+  "PaginationSummary": {
+    "PageIndex": 1 ,
+    "PageSize": 10,
+    "TotalItemCount": 1,
+    "TotalPages": 1
+  },
+  "Results": [
+    {
+      "Id": 1,
+      "FirstName": "jim",
+      "LastName": "graham",
+      "MiddleInitial": null,
+      "DoctorFullName": null,
+      "ExternalId": null,
+      "SpecialtyName": null,
+      "LocationName": null,
+      "Phone": null,
+      "Email": "test@example.com",
+      "Image": null,
+      "HasImage": false,
+      "City": null,
+      "IsEnabled": false,
+      "Zip": null,
+      "IsLocationEnabled": false,
+      "IsSpecialtyEnabled": false,
+      "DateOfBirth": null,
+      "Title": null,
+      "Language": null,
+      "Locations": null,
+      "Specialties": null,
+      "Interests": null,
+      "Payments": null,
+      "Educations": null,
+      "GenderName": null,
+      "HospitalAffiliation": null,
+      "SpecialtiesNames": null,
+      "SecondarySpecialtiesNames": null,
+      "MainSpecialtyName": null,
+      "BoardCertifiedSpecialties": null,
+      "LocationsNames": null,
+      "AllLanguages": null,
+      "IsParticipating": false
+    }
+  ]
+}

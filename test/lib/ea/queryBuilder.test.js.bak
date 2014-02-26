@@ -1,0 +1,70 @@
+'use strict';
+
+var queryBuilder = require('../../../app/lib/ea/queryBuilder');
+
+var criteria;
+
+describe('queryBuilder', function() {
+  
+  it('exists', function() {
+    expect(queryBuilder).to.be.an('object');
+  });
+
+  describe('build', function() {
+    beforeEach(function() {
+      criteria = [
+        { key: 'q[FirstName]',
+          op: 'eq',
+          value: '\'John\''
+        },
+        { key: 'q[LastName]',
+          op: 'eq',
+          value: 'NoQuotes'
+        },
+        {
+          key: 'q[Invalid]',
+          op: 'neq',
+          value: '\'badStuff\''
+        }
+      ];
+    });
+
+
+    describe('when called with bad or empty parameters', function () {
+
+      it('returns an empty string when given an empty array parameter', function() {
+        var response = queryBuilder.build([]);
+        expect(response).to.equal('');
+      });
+
+      it('returns an empty string when given a null parameter', function() {
+        var response = queryBuilder.build(null);
+        expect(response).to.equal('');
+      });
+
+      it('returns an empty string when given an undefined parameter', function() {
+        var response = queryBuilder.build(null);
+        expect(response).to.equal('');
+      });
+
+      it('returns an empty string when given a non-array parameter', function() {
+        var response = queryBuilder.build({});
+        expect(response).to.equal('');
+      });
+
+      it('returns an empty string when given a string parameter', function() {
+        var response = queryBuilder.build({});
+        expect(response).to.equal('');
+      });
+
+    });
+
+    describe('when called with valid criteria', function() {
+      it('builds eq operator criteria correctly', function() {
+        var response = queryBuilder.build(criteria);
+        expect(response).to.equal('?q[FirstName]=John&q[LastName]=NoQuotes');
+      });
+    });
+
+  });
+});

@@ -1,0 +1,140 @@
+/*jshint expr:true */
+
+
+'use strict';
+
+describe('sessionsMapper', function() {
+
+  var mapper = require('../../../../app/lib/ea/mappers/sessionsMapper');
+
+  it('exists', function() {
+    expect(mapper).to.not.equal(undefined);
+  });
+
+  describe('when EmpowerResponseString is Success', function(){
+    var sessionsDataForSuccess;
+
+    beforeEach(function(){
+      sessionsDataForSuccess = {
+        'EmpowerResponseString': 'Success',
+        'EmpowerSessionState': {
+          'User': {
+            'Id' : 'Id12345',
+            'UserName': 'patient'
+          }
+        },
+        'TwoFactorAuthCookie': 'twoFactorAuthCookie'
+      };
+    });
+
+    it('throw error if session state is null', function(){
+      sessionsDataForSuccess.EmpowerSessionState = null;
+      expect( function(){mapper(sessionsDataForSuccess);} ).to.throw('EmpowerSessionState cannot be null for a Success response');
+    });
+
+    it('results userName is set', function(){
+      var response = mapper(sessionsDataForSuccess).results;
+      expect(response.userName).to.not.be.empty;
+    });
+
+    it('EmpowerSessionState Users\' UserId is mapped to results\' userId', function(){
+      var response = mapper(sessionsDataForSuccess).results;
+      expect(response.userId).to.equal(sessionsDataForSuccess.UserId);
+    });
+
+    it('sessionAuthenticated is set to true', function(){
+      var response = mapper(sessionsDataForSuccess).results;
+      expect(response.sessionAuthenticated).to.equal(true);
+    });
+
+    it('challengeQuestions not set', function(){
+      var response = mapper(sessionsDataForSuccess).results;
+      expect(response.challengeQuestions).to.be.empty;
+    });
+
+    it('reponse TwoFactorAuthCookie is mapped to results\' twoFactorAuthToken', function(){
+      var response = mapper(sessionsDataForSuccess).results;
+      expect(response.twoFactorAuthToken).to.equal(sessionsDataForSuccess.TwoFactorAuthCookie);
+    });
+
+  });
+
+  describe('when EmpowerResponseString is SecretQuestionRequired', function(){
+
+    var sessionsDataForSecretQuestionRequired;
+
+    beforeEach(function(){
+      sessionsDataForSecretQuestionRequired = {
+        'EmpowerResponseString': 'SecretQuestionRequired',
+        'EmpowerSessionState': null,
+        'UserId' : 2,
+        'SecurityQuestions': [
+          {
+            'QuestionId': 'sample string 1',
+            'Question': 'sample string 2',
+            'Active': true
+          }
+        ],
+        'TwoFactorAuthCookie': 'twoFactorAuthCookie'
+      };
+    });
+
+    it('reponse UserId is mapped to results\' userId', function(){
+      var response = mapper(sessionsDataForSecretQuestionRequired).results;
+      expect(response.userId).to.equal(sessionsDataForSecretQuestionRequired.UserId);
+    });
+
+    it('sessionAuthenticated is set to false', function(){
+      var response = mapper(sessionsDataForSecretQuestionRequired).results;
+      expect(response.sessionAuthenticated).to.equal(false);
+    });
+
+    it('challengeQuestions set', function(){
+      var response = mapper(sessionsDataForSecretQuestionRequired).results;
+      expect(response.challengeQuestions).to.equal(sessionsDataForSecretQuestionRequired.SecurityQuestions);
+    });
+
+    it('reponse TwoFactorAuthCookie is mapped to results\' twoFactorAuthToken', function(){
+      var response = mapper(sessionsDataForSecretQuestionRequired).results;
+      expect(response.twoFactorAuthToken).to.equal(sessionsDataForSecretQuestionRequired.TwoFactorAuthCookie);
+    });
+
+  });
+
+  describe('when response string is something else', function(){
+    var sessionsDataForSomethingElse;
+
+    beforeEach(function(){
+      sessionsDataForSomethingElse = {
+        'EmpowerResponseString': 'SomethingElse',
+        'EmpowerSessionState': {
+          'User': {
+            'Id' : 'Id12345',
+            'UserName': 'patient'
+          }
+        },
+        'TwoFactorAuthCookie': 'twoFactorAuthCookie'
+      };
+    });
+
+    it('throws error if EmpowerResponseString is anything else', function(){
+      var errorString = 'EmpowerResponseString is ' + sessionsDataForSomethingElse.EmpowerResponseString;
+      expect(function(){ mapper(sessionsDataForSomethingElse); }).to.throw(errorString);
+    });
+
+    it('throws an error with a friendly message', function() {
+      var friendlyMessage = 'Could not log in. Please try again later.';
+      try {
+        mapper(sessionsDataForSomethingElse);
+      }
+      catch(err) {
+        expect(err.friendlyMessage).to.equal(friendlyMessage);
+        return;
+      }
+      //If catch block did not execute, fail the test.
+      throw new Error('Mapper should have thrown an error, but did not.');
+    });
+
+  });
+
+});

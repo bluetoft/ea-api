@@ -1,0 +1,128 @@
+{
+  "EmpowerResponseString": "Success",
+  "EmpowerSessionState": {
+    "Id": "sample string 1",
+    "IsEnterprise": "false",
+		"BusinessServicesIdentityUsername": "0-9319",
+    "User": {
+      "Id": "2",
+      "Created": "2013-12-16T13:28:59.240375-06:00",
+      "Description": "sample string 1",
+      "LdapSid": "sample string 2",
+      "LdapDomain": "sample string 3",
+      "IsDisabled": "true",
+      "LastPasswordChange": "2013-12-16T13:28:59.240375-06:00",
+      "IsPasswordExpired": true,
+      "CurrentLogin": "2013-12-16T13:28:59.240375-06:00",
+      "PreviousLogin": "2013-12-16T13:28:59.240375-06:00",
+      "ModuleInstanceId": "sample string 6",
+      "CustomXmlData": "sample string 7",
+      "FirstName": "Diana",
+      "LastName": "Dearman",
+      "MiddleName": "sample string 11",
+      "UserName": "patient",
+      "EmailAddress": "diana.dearman@medseek.com",
+      "SignedOffLandingPageUrl": "sample string 14",
+      "Gender": 1,
+      "DateOfBirth": "2013-12-16T13:28:59.240375-06:00",
+      "Addresses": [
+        {
+          "ZipCode": "sample string 1",
+          "Id": 1,
+          "AddressLine1": "sample string 2",
+          "AddressLine2": "sample string 3",
+          "City": "sample string 4",
+          "State": 1,
+          "Country": 1,
+          "AddressType": 5,
+          "IsPrimary": true
+        },
+        {
+          "ZipCode": "sample string 1",
+          "Id": 1,
+          "AddressLine1": "sample string 2",
+          "AddressLine2": "sample string 3",
+          "City": "sample string 4",
+          "State": 1,
+          "Country": 1,
+          "AddressType": 5,
+          "IsPrimary": true
+        },
+        {
+          "ZipCode": "sample string 1",
+          "Id": 1,
+          "AddressLine1": "sample string 2",
+          "AddressLine2": "sample string 3",
+          "City": "sample string 4",
+          "State": 1,
+          "Country": 1,
+          "AddressType": 5,
+          "IsPrimary": true
+        }
+      ],
+      "PhoneNumbers": [
+        {
+          "Id": 1,
+          "PhoneNumber": "sample string 1",
+          "Extension": "sample string 2",
+          "PhoneType": 3,
+          "IsPrimary": true
+        },
+        {
+          "Id": 1,
+          "PhoneNumber": "sample string 1",
+          "Extension": "sample string 2",
+          "PhoneType": 3,
+          "IsPrimary": true
+        },
+        {
+          "Id": 1,
+          "PhoneNumber": "sample string 1",
+          "Extension": "sample string 2",
+          "PhoneType": 3,
+          "IsPrimary": true
+        }
+      ],
+      "Races": [
+        {
+          "ConceptCode": "sample string 1",
+          "Name": "sample string 2",
+          "DisplayName": "sample string 3"
+        },
+        {
+          "ConceptCode": "sample string 1",
+          "Name": "sample string 2",
+          "DisplayName": "sample string 3"
+        },
+        {
+          "ConceptCode": "sample string 1",
+          "Name": "sample string 2",
+          "DisplayName": "sample string 3"
+        }
+      ],
+      "DisplayRace": "sample string 3, sample string 3, sample string 3",
+      "Ethnicity": "sample string 16",
+      "PreferredLanguage": "sample string 17",
+      "MaritalStatus": "sample string 18",
+      "Title": 19,
+      "Suffix": 20,
+      "Image": "QEBA",
+      "UseEnterpriseModifier": true,
+      "IsUserLocked": true
+    },
+    "_created": "2013-12-16T13:28:59.256-06:00",
+    "_ipAddress": "sample string 5",
+    "_expires": "2013-12-16T13:28:59.256-06:00",
+    "_lastActivity": "2013-12-16T13:28:59.256-06:00",
+    "_whenLoggedOn": "2013-12-16T13:28:59.256-06:00",
+    "_portalId": "sample string 7",
+    "_context": {
+      "_data": {}
+    },
+    "<IsExpirationAbsolute>k__BackingField": true,
+    "<IsServiceSession>k__BackingField": true
+  },
+  "UserId": "sample string 2",
+  "TwoFactorAuthCookie" : "ABCDEFG",
+  "NumberOfDaysTillPasswordExpires": 1
+}

@@ -1,0 +1,14 @@
+{
+  "EmpowerResponseString": "SecretQuestionRequired",
+  "EmpowerSessionState": null,
+  "UserId": "2",
+  "NumberOfDaysTillPasswordExpires": null,
+  "SecurityQuestions" : {
+    "QuestionId" : 6,
+    "Question" : "Sample Question",
+    "Active" : true
+  },
+  "SecurityQuestionInstructions" : "sample string 1",
+  "TwoFactorAuthCookie" : null,
+  "SecurityQuestionUpdateRequired" : true
+}

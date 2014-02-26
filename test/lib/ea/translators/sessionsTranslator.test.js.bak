@@ -1,0 +1,308 @@
+'use strict';
+
+var sessionsTranslator;
+var mockConfig;
+
+var req = {
+  headers: {
+    authorization: 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+  },
+  ip: '123.456.789.012',
+  body: { rememberMe: true }
+};
+
+var putReq = {
+  headers: {
+    authorization: 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+  },
+  ip: '123.456.789.012',
+  body: { challengeQuestions: [
+    {questionId: 1, question: 'q1', answer: 'a1'},
+    {questionId: 2, question: 'q2', answer: 'a2'}
+  ]}
+};
+
+var hostname = '3f2504e0-4f89-11d3-9a0c-0305e82c3301';
+var port = 80;
+var sessionsPath = '/sessions';
+var basePath = '/service';
+
+describe('sessionsTranslator', function() {
+
+  beforeEach(function() {
+    mockConfig = sinon.stub({ get: function() {} });
+    mockConfig.get.withArgs('empower:hostname').returns(hostname);
+    mockConfig.get.withArgs('empower:port').returns(port);
+    mockConfig.get.withArgs('empower:sessions:putSessionPath').returns(sessionsPath);
+    mockConfig.get.withArgs('empower:sessions:postSessionsPath').returns(sessionsPath);
+    mockConfig.get.withArgs('empower:basepath').returns(basePath);
+
+    sessionsTranslator = proxyquire('../../app/lib/ea/translators/sessionsTranslator', {
+      '../../config': mockConfig
+    });
+  });
+
+  it('exists', function() {
+    expect(sessionsTranslator).to.be.an('object');
+  });
+
+  describe('translatePostRequest', function() {
+
+    describe('returns a JSON object', function() {
+
+      it('with http request options', function() {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.be.an('object');
+      });
+
+      it('with a hostname pointing to empower', function() {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.property('hostname', hostname);
+      });
+
+      it('with a port from configuration', function() {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.property('port', port);
+      });
+
+      it('with a path to sessions from config', function() {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.property('path', basePath + sessionsPath);
+      });
+
+      it('with a POST method', function() {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.property('method', 'POST');
+      });
+
+      it('with a body that has username from authorization', function () {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.deep.property('body.Username', 'Aladdin');
+      });
+
+      it('with a body that has password from authorization', function () {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.deep.property('body.Password', 'open sesame');
+      });
+
+      it('with a body that has ip address from request', function () {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.deep.property('body.IpAddress', '123.456.789.012');
+      });
+
+      it('with a body that has enterprise value that is false', function () {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.deep.property('body.IsEnterprise', false);
+      });
+
+      it('with a body that has remember me value', function () {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.deep.property('body.RememberMe', req.body.rememberMe);
+      });
+
+      it('with client ip address from request', function() {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.deep.property('headers.client-ip', '123.456.789.012');
+      });
+
+      it('with content type json', function() {
+        var result = sessionsTranslator.translatePostRequest(req);
+        expect(result).to.have.deep.property('headers.Content-Type', 'application/json');
+      });
+
+    });
+
+    describe('when given empty authorization information', function() {
+      var badreq;
+      before(function () {
+        badreq = {
+          headers: {},
+          ip: '123.456.789.012',
+          body: {}
+        };
+      });
+
+      it('uses an empty username', function () {
+        var result = sessionsTranslator.translatePostRequest(badreq);
+        expect(result).to.have.deep.property('body.Username', '');
+      });
+
+      it('uses an empty password', function () {
+        var result = sessionsTranslator.translatePostRequest(badreq);
+        expect(result).to.have.deep.property('body.Password', '');
+      });
+
+    });
+
+    describe('when missing request body', function() {
+      var badreq;
+      before(function () {
+        badreq = {
+          headers: {
+            authorization: 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+          },
+          ip: '123.456.789.012'
+        };
+      });
+
+      it('throws an error', function () {
+        expect(function() { sessionsTranslator.translatePostRequest(badreq); }).to.throw(Error);
+      });
+
+    });
+
+  });
+
+  describe('translatePutRequest', function() {
+
+    describe('returns a JSON object', function() {
+
+      it('with http request options', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.be.an('object');
+      });
+
+      it('with a hostname pointing to empower', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.property('hostname', hostname);
+      });
+
+      it('with a port set to 80 for http', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.property('port', port);
+      });
+
+      it('with a path from sessions', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.property('path', basePath + sessionsPath);
+      });
+
+      it('with a POST method', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.property('method', 'POST');
+      });
+
+      it('with a body that has username from authorization', function () {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.deep.property('body.Username', 'Aladdin');
+      });
+
+      it('with a body that has password from authorization', function () {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.deep.property('body.Password', 'open sesame');
+      });
+
+      it('with a body that has ip address from request', function () {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.deep.property('body.IpAddress', '123.456.789.012');
+      });
+
+      it('with a body that has enterprise value', function () {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.deep.property('body.IsEnterprise', false);
+      });
+
+      it('with a body that has challengeQuestions value', function () {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+
+        expect(result).to.have.deep.property('body.ChallengeQuestions')
+          .and.to.be.an('array')
+          .and.to.equal(putReq.body.challengeQuestions);
+      });
+
+      it('maps the challengeQuestions property', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        var securityAnswers = [
+          {
+            'questionId': 1,
+            'question': 'q1',
+            'answer': 'a1'
+          },
+          {
+            'questionId': 2,
+            'question': 'q2',
+            'answer': 'a2'
+          }
+        ];
+        expect(result).to.have.property('body')
+          .and.to.have.property('ChallengeQuestions')
+          .and.to.deep.equal(securityAnswers);
+      });
+
+      it('with client ip address from request', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.deep.property('headers.client-ip', '123.456.789.012');
+      });
+
+      it('with content type json', function() {
+        var result = sessionsTranslator.translatePutRequest(putReq);
+        expect(result).to.have.deep.property('headers.Content-Type', 'application/json');
+      });
+
+    });
+
+    describe('when given empty authorization information', function() {
+      var badreq;
+      before(function () {
+        badreq = {
+          headers: {},
+          ip: '123.456.789.012',
+          body: {challengeQuestions: []}
+        };
+      });
+
+      it('uses an empty username', function () {
+        var result = sessionsTranslator.translatePostRequest(badreq);
+        expect(result).to.have.deep.property('body.Username', '');
+      });
+
+      it('uses an empty password', function () {
+        var result = sessionsTranslator.translatePostRequest(badreq);
+        expect(result).to.have.deep.property('body.Password', '');
+      });
+
+    });
+
+    describe('when missing request body', function() {
+      var badreq;
+      before(function () {
+        badreq = {
+          headers: {
+            authorization: 'Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ=='
+          },
+          ip: '123.456.789.012'
+        };
+      });
+
+      it('throws an error', function () {
+        expect(function() { sessionsTranslator.translatePutRequest(badreq); }).to.throw(Error);
+      });
+
+    });
+
+  });
+
+  describe('translateDeleteRequest', function() {
+
+    describe('returns a JSON object', function() {
+
+      it('with http request options', function() {
+        var result = sessionsTranslator.translateDeleteRequest(req);
+        expect(result).to.be.an('object');
+      });
+
+      it('with a hostname pointing to empower', function() {
+        var result = sessionsTranslator.translateDeleteRequest(req);
+        expect(result).to.have.property('hostname', hostname);
+      });
+
+      it('with a port set to 80 for http', function() {
+        var result = sessionsTranslator.translateDeleteRequest(req);
+        expect(result).to.have.property('port', port);
+      });
+
+    });
+
+  });
+
+});
