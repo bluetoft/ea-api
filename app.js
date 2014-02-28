@@ -5,6 +5,7 @@ var express = require('express');
 var swaggerConfig = require('./app/swaggerConfig');
 var errorHandler = require('./app/middleware/errorHandler');
 var responseFormatter = require('./app/middleware/responseFormatter');
+var sessionHandler = require('./app/middleware/sessionHandler');
 var app = setupExpress();
 
 if (app.settings.env !== 'test') {
@@ -18,6 +19,7 @@ module.exports = app;
 function setupExpress() {
   var app = express();
   app.use(express.urlencoded());
+  app.use(sessionHandler);
   app.use(express.cookieParser());
   app.use(app.router);
   app.use(responseFormatter);

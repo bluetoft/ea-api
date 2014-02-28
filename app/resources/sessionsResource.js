@@ -16,6 +16,7 @@ exports.deleteSessions = {
     'nickname' : 'deleteSession'
   },
   'action' : function(req, res) {
+    eaSessionsMediator.deleteSessions(req.params.sessionId);
     res.json(400);
     return;
   }
@@ -29,8 +30,7 @@ exports.postSessions = {
     'summary' : 'Create a new session',
     'method': 'POST',
     'params' : [
-      sw.headerParam('Authorization', 'Authorization header', 'string', true),
-      sw.bodyParam('rememberMe', 'Option to temporarily disable two-factor auth', 'bool', false)
+      sw.headerParam('Authorization', 'Authorization header', 'string', true)
     ],
     //'errorResponses' : [swe.invalid('input')],
     'nickname' : 'postSessions'

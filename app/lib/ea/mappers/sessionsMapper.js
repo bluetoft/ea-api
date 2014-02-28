@@ -1,14 +1,12 @@
 'use strict';
-
+var config = require('../../../../config')
 module.exports = function(result) {
 
 	var session = {};
-  
-	session.userId = result.Id;
-
-	if (result){
+	if (result && result.user){
 		session.sessionAuthenticated = true;
-		session.userName = result.UserName;
+		session.userName = result.user[config.get('ea:usersTable:columns:username')];
+		session.id = result.sessionId
 	}
 	else{
 		var error = new Error('No user found.');

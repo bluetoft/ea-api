@@ -1,20 +1,20 @@
 'use strict';
 
-var translator = require('../translators/sessionsTranslator');
+var repository = require('../repositories/sessionsRepository');
 var dispatcher = require('../../sqlDispatcher');
 var mapper = require('../mappers/sessionsMapper');
 
 exports.postSessions = function(req) {
-  return executeMediation(req, translator.translatePostRequest);
+  return executeMediation(req, repository.authenticate);
 };
 
-exports.deleteSessions = function(req) {
-  return executeMediation(req, translator.translateDeleteRequest);
+exports.deleteSessions = function(sessionId) {
+  return repository.endSession(sessionId);
 };
 
-function executeMediation(req, translatorFunc) {
-  var requestProperties = translatorFunc(req);
-  var responsePromise = dispatcher.dispatch(requestProperties, requestProperties.body);
+function executeMediation(req, func) {
+  var responsePromise = func(req);
+
   var mappedData = responsePromise.then(function(result) {
     return mapper(result);
   });

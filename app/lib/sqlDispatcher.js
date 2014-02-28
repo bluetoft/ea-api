@@ -7,7 +7,6 @@ var config = require('../../config')
 exports.query = function(stmt, params) {
   var deferred = q.defer();
   
-  console.log()
   var conn = new sql.Connection(config.get('sqlConnection'), function (err){
     
     if(err) {
@@ -17,12 +16,30 @@ exports.query = function(stmt, params) {
       var request = conn.request();
       if(params){
         for(var item in params){
-          request.input(item, params[item])
+          try{
+            request.input(item, params[item].type, params[item].val)
+          }
+          catch(err){
+            console.log(err);
+            deferred.reject(err);
+          }
         }
       }
-      request.query(stmt, function(error, recordset) {
-        deferred.resolve(recordset);
-      })
+      try{
+        request.query(stmt, function(error, recordset) {
+          if(error){
+            console.log(error);
+            deferred.reject(error);
+          } else{
+            deferred.resolve(recordset);
+          }
+          conn.close();
+        })
+      }
+      catch(err){
+        console.log(err);
+        deferred.reject(err);
+      }
     }
   });
  

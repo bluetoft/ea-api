@@ -4,7 +4,7 @@ var formatter = require('../../app/middleware/responseFormatter');
 
 describe('responseFormatter', function() {
 	var res;
-	var req = { url: 'url' };
+	var req = { url: 'url', session: {} };
 	var next;
 
 	beforeEach(function() {
@@ -68,6 +68,7 @@ describe('responseFormatter', function() {
 			href: 'url',
 			results: ['r1', 'r2', 'r3'],
 			total: 20,
+			session: {},
 			returned: 9
 		});
 	});
